@@ -1,0 +1,181 @@
+* SimpleDateFormat - formatovacie retazce na mesiac (cely nazov, prve 3 pismena apod) (MM, mm, MMM, MMMM)
+	- MM -> 11
+	- MMM -> Nov
+	- MMMM -> November
+	- mm are minutes in hour
+
+
+* CopyOnWriteArrayList a CopyOnWriteArraySet (alebo nieco take) - co to je, ako sa to pouziva
+	- http://techvivek.wordpress.com/2009/08/29/difference-between-arraylist-and-copyonwritearraylist/
+	- ArrayList causes ConcurentModificationException when one thread iterating over the list and other(or possible the same) inserts items, these two don't. All operations that change content of the list creates copy
+		of underlying array and modifies it, thus running iteration is unaffected, it uses origin array. But, Iterators throw UnsuportedOperationException if they try to modify the array. The new value which has been added
+		is merged to copy of orignal array only after Iteration is over. Note, only the Iterators methods are unsuported, the CopyOnWriteArrayList's methods there and are fine (it implements List interface)
+	- CopyOnWriteSet uses CopyOnWriteList as underlying implementation, both are thead-safe.
+
+
+* ako loadovat driver pri JDBC 3.0 - 2 sposoby
+	- http://www.exampledepot.com/egs/java.sql/LoadDrivers.html (there are two below ways how to do it)	
+	- DriverManager.registerDriver(new org.apache.derby.jbdc.Driver30());
+	- Class.forName("org.apache.derby.jbdc.Driver30");
+	
+* connection.setAutoCommit(false);
+spusti insert
+savepoint1
+insert2
+rollback(); (bez parametrov)
+insert3
+setAutoCommit(true);
+insert4;
+
+select * - ktore vsetky inserty uvidim -> only insert3 and insert4 [set a db connection in my app and verify, it there will be more questions about databases]
+
+	- http://www.ibm.com/developerworks/java/library/j-jdbcnew/ (end of the page, there is savepoint explanation) 
+		- in general, savepoint is the mark up to which the transaction is rolled back with savepoint as parameter: con.rollback(savepoint) [without parameter the whole transaciton is rolled back]
+
+
+* ResourceBundle - ako sa loaduje (poradie, ak nie je bundle pre default locale apod) - dost otazok takze nastudovat
+	- http://docs.oracle.com/javase/tutorial/i18n/resbundle/concept.html
+	- locale: fr_CA_UNIX; default locale en_US; then the order of looking: 
+		MyBundle_fr_CA_UNIX
+		MyBundle_fr_CA
+		MyBundle_fr
+		MyBundle_en_US
+		MyBundle_en
+		MyBundle
+	- ResourceBundle.getBundle("config") tells the classloader to load a resource named "config" with default package (that is, no package). Thus, it has to be located in bin directory (in the directory where the *.class files 			are compiled to be more precise). Loading works in the same way that classloading works, thus the package can be specified: ResourceBundle.getBundle("bundles.bundle") looks for bin/bundles/bundle.properties
+
+
+* ForkJoin - kostra algoritmu, performance ak mam fork(); result = forked.join() + compute();
+	- http://www.cs.washington.edu/homes/djg/teachingMaterials/grossmanSPAC_forkJoinFramework.html
+	- https://www.ibm.com/developerworks/java/library/j-jtp11137/index.html
+
+	- I creates RecursiveTask<T> or RecursiveAction (subclasses of ForkJoinTask<T>). They have compute method where the problem is divided into (two) subproblems (new RecursiveTast<T> or RecursiveAciton instances).
+	One instace call fork() method (it triggers compute method in different thread) and second instance call compute() method directly (it returns T). After that call join method on the first instance (it returns T that was 		computed by first instance's compute method trigger previoiusly by fork(). It computation is not finished, join method waits for it). So you get two T subresult and you can compine it to the final result that the 'main' 		compute() method can return.
+
+
+* Thread th1;
+th1.sleep(1000) - uspi aktualne vlakno, nie th1. Sleep is static method of Thread class, thus it has no sense to call it on particular instance.
+
+* rozdiel medzi Runnable Callable (return value, exception)
+	- Runnable cannot return a value and cannot throw a checked exception. Runnable interface has run() method with void return type and without a throw clause, thus every checked exception has to be caught in the run's body.
+	- Runnable is since 1.0, Callable since 1.5, due to backward compatibility, the Callable class were added instead of modifying Runnable class
+	- http://stackoverflow.com/questions/141284/the-difference-between-the-runnable-and-callable-interfaces-in-java (first two answers are enough)
+
+
+* deadlock, liveness, starvation - co to je - niekolko prikladov a vybrat o co ide
+	- http://docs.oracle.com/javase/tutorial/essential/concurrency/liveness.html (oracle explanation of liveness, deadlock and livelock)
+	- http://stackoverflow.com/questions/3455312/java-deadlock-question (explanation of deadlock)
+	- liveness - it is property of concurent application that means that application is able to execute itself in timely manner - there are no deadlock or livelocks or starving threads
+	- deadlock - if two or more threads waiting for resources that are locked by the other threads - they are waiting for each other to release the resources.
+	- livelock - if two or more threads respond to action of another thread action that causes again the initial action of thread etc, example: gaston and alonso are heading toward themself on the pavement. In the same time 			gaston goes left to avoit the crash with alonso, but alonso goes right for the same reason. That causes the response of both of them to go to other side to avoid the crash ...
+		- it is not deadlock (they are not waiting, but they doing the same step left, step right sequence infinitely and no progress is made at all)
+
+* interface I { func }
+class A {func}
+class B extends A implements I
+	- this is OK, no matter that A doesn't implements I. But, the func has to be public in A, cos func in interface is public automatically, even if not explicitely specified.
+
+* FileReader, FileWriter api, DataObjectStream api - ci readLine moze hodit IOException alebo nie
+	- FileReader
+		- no special methods compared to (InputStream)Reader
+		- constructor throws FileNotFoundExcepiton
+	- FileWriter
+		- no special methods compared to (OutputStream)Writer
+		- constructor throws IOException
+	- DataOutputStream
+		- used for writing java primitive types to outputstream, plenty of writeSOMETHING methods (writeDouble, writeBytes(String s), writeByte, writeChars(String s), writeLong...)
+		- all of them of course can throw IOException
+	- readLine method is in some weird classes and in BufferedReader and yes, it can throw IOException
+
+* SimpleFileVisitor a PathMatcher (NIO)
+	- long oracle tutorial: http://docs.oracle.com/javase/tutorial/essential/io/fileio.html, due to catchman, it should be enough
+
+* Files.copy a File.move  + StandardCopyOption
+	- see OracleJavaCertNotes.txt
+
+* DAO pattern - co ma byt interface a co class, co je POJO Bean a co ma obsahovat metody find, delete apod - asi 3-4 otazky a treba viac, nez je v tom clanku na strankach oraclu
+	- http://java.sun.com/blueprints/corej2eepatterns/Patterns/DataAccessObject.html
+		- it claims that CustomerDAO is interface, MySqlCustomerDAO implements CustomerDAO is particular implementation for mysql and here there are find and CRUD methods, The POJO is transfer object, DAO is working with.
+		- the other abstaction is interface FactoryDAO, that is suposed to creates CustomerDAOs. The particular implenetation (MySqlFactoryDAO produces MySqlCustomerDAOs) is for particular persistence provider.
+		- http://www.roseindia.net/tutorial/java/jdbc/dataaccessobjectdesignpattern.html
+			- the same holds here, the DAO class has find/CRUD methods, there is POJO-Bean StudenBean (transfer object)
+
+* Skoro ziadna otazka na Executors - iba to, ze pocet vlakien si moze urcit programator
+	- Executors -> factory class for creating object that implements Executor interface (execute method only). It contains newFixedThreadPool() method that creates ExecutorService (interface), that has fixed size of thread in pool. When run execute(Runnable r), the r is put into the queue and when some thread in pool is free, r executes (r.run is called). Thus the tasks and threads are separated (in comparation with Thread class, where for one Runnable instance one thread is created. ExecutorService has submit(callable) method, more versatile, returns Future<T> object for retrieving result of Callable's call method. Shutdown method prevents other task to be submitted to worker threads, but it waits for already running task to complete before pool is shutdowned. ScheduledExecutorService provides method for delayed adding and repeated adding task to pool (schedule method)
+	- http://docs.oracle.com/javase/tutorial/essential/concurrency/
+	- http://tutorials.jenkov.com/java-util-concurrent/executorservice.html
+	- info I wrote is from API itself
+	
+
+* ResourceBundle.getObject(1) - co to vrati
+	- it won't compile, getObject() method awaits String key or Object key.
+
+* cohesion, coupling, is-a, has-a vztahy - nieco mi tam prislo nejednoznacne, ale inak to bolo easy
+	- cohesion: that every class concentrates on one single well-defined problem (piece of functionality). The class prerforms a set of closely related actions => no unrelated task withing one class.
+	- coupling: loose coupling means that class is independent, reusable and flexible. It doesn't depend on other classes heavily. Usually it is accomplished by privat members, get/set methods and interfaces that defines contract betwwen instance and its consumer instance.
+
+* overloading + shadowing class memberov (metody overloadujem ale premenne nie, takze pri pristupe cez predka sa pouzije member z predka...)
+	- properties of the class can't be overriden, thus if I access the class via its ancestor, I can see only ancestor members with ancestor values. If ancestor and child has the same named property, the ancestors one shadows the child one (if access via ancestor). Furthermore, if method defined in ancestor operates with such property, the value from ancestor is used.
+
+* aka vlastnost umoznuje pouzivat generika s 'raw type' colekciami - bytecode manipulation, casting, boxing, unboxing - nemam tucha
+	 - difficult to say, casting or boxing
+
+* bolo tam par chytakov, kedy sa kod neskompiloval, takze si treba poriadne precitat zadanie
+	- thanks for a million-dollar advice
+
+* factory method na NumberFormat + DecimalFormat (getIntegerInstance je v NumberFormat a DecimalFormat ho dedi)
+
+* ako znizit previazanost pri DAO objektoch (factory method a abstract factory)
+
+* neboli tam ziadne chytaky na overloading (ktora metoda sa vola apod) ani na pretypovavanie (okrem jedneho jednoducheho...)
+
+* neboli tam wildcards pre generika
+
+* ci moze byt v ceste (pre Path object) nieco ako "//home//matej", alebo ci to hodi InvalidPathException (alebo nejaku podobnu vynimku)
+
+* Priklad na watch service - sledujem adresar, v nom premenujem subor a dostavam notifikacie pri create, modify a delete - ci to co dostanem a poradie v akom to dostanem je platformne zavisle alebo nie a pripadne co dostanem na linuxe a co na widlach
+
+RHEL 6 results:
+
+									rm b.txt
+ENTRY_DELETE: /home/trepel/OracleJavaCert/watchTesting/b.txt
+POLL EMPTY								touch a.txt
+ENTRY_CREATE: /home/trepel/OracleJavaCert/watchTesting/a.txt
+ENTRY_MODIFY: /home/trepel/OracleJavaCert/watchTesting/a.txt
+POLL EMPTY								mv a.txt b.txt
+ENTRY_DELETE: /home/trepel/OracleJavaCert/watchTesting/a.txt
+ENTRY_CREATE: /home/trepel/OracleJavaCert/watchTesting/b.txt
+POLL EMPTY								echo "b" > b.txt
+ENTRY_MODIFY: /home/trepel/OracleJavaCert/watchTesting/b.txt
+POLL EMPTY								touch a.txt
+ENTRY_CREATE: /home/trepel/OracleJavaCert/watchTesting/a.txt
+ENTRY_MODIFY: /home/trepel/OracleJavaCert/watchTesting/a.txt
+POLL EMPTY								mv b.txt a.txt
+ENTRY_DELETE: /home/trepel/OracleJavaCert/watchTesting/b.txt
+ENTRY_CREATE: /home/trepel/OracleJavaCert/watchTesting/a.txt
+POLL EMPTY								echo "a" > a.txt
+ENTRY_MODIFY: /home/trepel/OracleJavaCert/watchTesting/a.txt
+POLL EMPTY
+
+windows xp sp3:
+difference is that on windows the renaming operation triggers MODIFY event too
+
+* AtomicInteger api
+
+* neboli tam ziadne Lock, BlockingQueue apod.
+
+* par prikladov na Dequeu a jej pouzitie ako zasobnik (stack - push a pop)
+
+* chceli vediet, ako sa volam...(aj priezvisko!!!!) - mal by si mat na obcianskom, tak sa to nauc
+
+* FileNotFoundException - kedy sa hadze
+
+* par prikladov na regex (\S, \b), Scanner a String.split() - nic takze
+
+* Collections.sort(a, myComparator); int pos = Collections.binarySearch(elem, a) - hladam ale nepouzijem ten comparator - aky je vysledok pre konkretne pole stringov a definovany komparator
+
+* ktory typ Executor service je schopny spustat vlakna z zadanych rozmediach (ScheduledExecutorService)
+
+* file attributes - dos filesystem, set hidden and system file (setAttribute s string parametrom) + este nieco ohladom atributov
+
+* try-with-resources: tusim treba vediet, ze to musi odchytavat vynimku, alebo ta metoda musi obsahovat throws klauzulu; a treba aj vediet, co je supressed vynimka

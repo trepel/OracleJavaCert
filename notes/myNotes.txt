@@ -1,0 +1,37 @@
+public <T,V> T invoke(ForkJoinTask<V> task)
+	- <T,V> means that some strange T and V types are going to be used in method declaration, T means return type, <V> means that V object is going to be the part of task object
+
+class Enum
+	- enum can't extends enum (enum is meant as well-known set of values, thus no modification is allowed here) [http://stackoverflow.com/questions/1414755/java-extend-enum]
+	- enum can implement interface, cos enum can represent well-know set of complex Object and I want those objects to implement an interface (e.g. have two enum classes with objects implementing the same interface)
+		so I can work with the enum values in the same manner [http://stackoverflow.com/questions/2709593/why-would-an-enum-implement-an-interface]
+	- enum implements comparable, but the compereTo method is declared final [http://stackoverflow.com/questions/519788/why-is-compareto-on-an-enum-final-in-java]
+	- in the example above there is an enum with complex objects (DOG and CAT), there is constructor for them, they both have sound, but each animal has different sound
+		- constructor has to be private (or no modifier specified)
+
+Singleton
+	- the best way: use enum with single instance
+	- of course, public class with private constructor and static getInstance method works fine too
+		- the creation can be directly in property declaration - no need for synchronized or other special language constructs
+		- or in getInstance method (first null check has to be done), but the method has to be synchronized (this is lazy initialization variant)
+		- NOTE: http://www.ibm.com/developerworks/java/library/j-dcl/index.html - double-check locking, when two null-checks are used, and the method itself is not synchronizes, only the block after first null-check
+			- this doesn't work due to some JVM optimizing behavior or what
+		- http://en.wikipedia.org/wiki/Singleton_pattern (nice examples in java, how to do that)
+
+http://docs.oracle.com/javase/tutorial/essential/io/file.html
+	- there is an example of try-with-resources with more than one resource, look for 'Reading a File by Using Stream I/O' heading
+	- resources are ';' separated
+	- in the catch clause ,the exception classes can be separated by '|' to one catch block catches more than one exception: ... } catch (IOException | FileNotFoundException e) { ...
+
+java.nio.file.Path - is not platform independent, cannot compare unix and windows paths even if they target to the same file
+	- most of the Path methods are just syntactic => the file itself doesn't need to exists at all, the methods operates only with the Path object itself
+	- Path is collection indexed from 0 and the root element has no index => can be iterable: (Path subpath : path) {...}
+	- Files contains bunch of static methods that operates on Path objects
+		- delete - only empty dir can be deleted otherwise DirectoryNotEmptyException is thrown
+		- copy - non-empty dir can be copied, but it is copied without its content
+			- if symlink, the target of the link is copied, to copy symlink itself, use NOFOLLOW_LINKS or REPLACE_EXISTING
+			- REPLACE_EXISTING - it the target is non-empty dir, the FileAlreadyExistsException occurs even if this option/flag is specified
+		- move - in case of moving non-empty dir on the same partition, on unix systems it is possible cos moving dir is equivalent to renaming dir - thus content of the dir doesn't need to be moved with the parent dir
+			- ATOMIC_MOVE - exception is thrown if file system doesn't support this, used if same FileWatcher or something that watches the file to behave correctly
+			- Files.move(source, source.resolveSibling("newname")); // rename to newname
+			- Files.move(source, newdir.resolve(source.getFileName()), REPLACE_EXISTING); // move to the newdir, the name of file remains untouched
