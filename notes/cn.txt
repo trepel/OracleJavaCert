@@ -168,12 +168,32 @@ windows xp sp3:
 difference is that on windows the renaming operation triggers MODIFY event too
 
 * AtomicInteger api
+	- volatile variable is such variable that is supposed to be changed by different threads. Thus is never cached locally
+	- this provides set of atomic methods to modify the value atomically
+	- compareAndSet, decrementAndGet, getAndIncrement, getAndAdd(delta), addAndGet(delta) - pretty clear
+	- lazySet - the actual set can be reordered to with some next writes
+	- weakCompareAndSet - can be more efficient on some platform, can return false because of "no" reason
 
 * neboli tam ziadne Lock, BlockingQueue apod.
+	- great !
 
 * par prikladov na Dequeu a jej pouzitie ako zasobnik (stack - push a pop)
-
-* chceli vediet, ako sa volam...(aj priezvisko!!!!) - mal by si mat na obcianskom, tak sa to nauc
+	- LIFO collection == stack
+	- FIFO collection == queue
+	- Double Ended QUEue == deque
+	- Queue has two method types: add, remove, element that throws exceptions if queue is full/empty...
+		and offer, poll, peek that returns false or null if queue is full/empty...
+	- Deque is like queue, but one can add and remove and see the elements from the both queue ends.
+		- head of the queue (thus of deque too) is where is the element that is going to be removed by remove()
+		method. Deque is a queue, so the FIFO behavior is considering to be 'default'. Thus remove() is equivalent to removeFirst()
+		and add is equivalent to addLast()
+	- implementation of Stack LIFO using Deque
+		push == addFirst // I always add elements to the beginnign of the stack
+		pop == removeFirst // I always remove elements from the beginings, thus Last In goes First Out
+		top == peekFirst // I can directly see only the beginnig (last inserted element
+	- if using Queue q = new Deque(), the queue is FIFO, cos add -> addLast // adding at the end, but
+		remove -> removeFirst, thus the Lastlly inserted (at the end) will be the lastly removed cos he needs
+		to travel to begining to the queue to be removed
 
 * FileNotFoundException - kedy sa hadze
 
