@@ -124,14 +124,21 @@ class B extends A implements I
 	- thanks for a million-dollar advice
 
 * factory method na NumberFormat + DecimalFormat (getIntegerInstance je v NumberFormat a DecimalFormat ho dedi)
+        - NumberFormat is abstract class, the super-class of all number format class. DecimalFormat class is (normal) class for decimal numbers.
+	- NumberFormat has several static get*Instance(Locale l) methods, where * == nothing, Integer, Percentage, Currency, Number; Locale and without any params variants
+		- there static get*Instance methods returns DecimalFormat (at least nothing, Integer, Number)
 
 * ako znizit previazanost pri DAO objektoch (factory method a abstract factory)
+	- AbstractDAOFactory contains methods for creating all DAOs (types of DAO)
 
 * neboli tam ziadne chytaky na overloading (ktora metoda sa vola apod) ani na pretypovavanie (okrem jedneho jednoducheho...)
+	- B extends A; C extends A; A a = new B(); a = (C) a; // no compile error, but runtime cast exception
 
 * neboli tam wildcards pre generika
+	- great!
 
 * ci moze byt v ceste (pre Path object) nieco ako "//home//matej", alebo ci to hodi InvalidPathException (alebo nejaku podobnu vynimku)
+	- yes, it is normalized to /home/matej
 
 * Priklad na watch service - sledujem adresar, v nom premenujem subor a dostavam notifikacie pri create, modify a delete - ci to co dostanem a poradie v akom to dostanem je platformne zavisle alebo nie a pripadne co dostanem na linuxe a co na widlach
 
