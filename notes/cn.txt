@@ -206,3 +206,7 @@ difference is that on windows the renaming operation triggers MODIFY event too
 * file attributes - dos filesystem, set hidden and system file (setAttribute s string parametrom) + este nieco ohladom atributov
 
 * try-with-resources: tusim treba vediet, ze to musi odchytavat vynimku, alebo ta metoda musi obsahovat throws klauzulu; a treba aj vediet, co je supressed vynimka
+
+* erasure (http://docs.oracle.com/javase/tutorial/java/generics/erasure.html)
+
+* na raw type tam nieco tiez bolo
