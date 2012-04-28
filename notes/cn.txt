@@ -224,8 +224,28 @@ difference is that on windows the renaming operation triggers MODIFY event too
 			permission problem (on unix systems)
 
 * par prikladov na regex (\S, \b), Scanner a String.split() - nic takze
+	- split(regex, limit) : String[]
+		- limit determines the max length of resulting array (max pattern apply count -1)
+			- if 0 -> unlimited, but the begining and ending empty-string items are ignored {"bla", "bla"}
+			- if negative -> unlimited, but with trailing empty-string elements {"", "bla", "bla", "", "" }
+		- regex is delimiter
+		- the split variant without limit behaves like limit == 0
+	- regex
+		- Pattern, Matcher - Pattern p = Pattern.compile(regex); Matcher m = p.matcher(stringToSearchIn); m.find(); m.start(); m.end();, m.group();
+		- \s - whiteSpaceChar \S - non whitespace -> this lower/upper negation rule is general
+		- \d \D -digit; \w \W -word [a-zA-Z_0-9]
+		- \b \B -word boundary, e.g \bdog\B found dog in: my doggie is little
+	- Scanner
 
 * Collections.sort(a, myComparator); int pos = Collections.binarySearch(elem, a) - hladam ale nepouzijem ten comparator - aky je vysledok pre konkretne pole stringov a definovany komparator
+	- sort method sorts the input collection ASC (min-to-max) using natural ordering by default, or given comparator
+	- binarySearch(list, item) finds index of item in ASC ordered list (natural ordering). Or as a third argument, the comparator can be specified.
+		- if list is not ordered, the result is undefined
+		- what is need to now, when list size is even, the pivot is the last element from the first half (the one that has lower elemens)
+			- if the pivot is bigger than item, fist half is searched, second half otherwise.
+			- e.g.: if array is not ASC orderd "dcba", then binary search using native ordering finds correctly c (c is taken as pivot in first step)
+			but it is unable to find d, cos it in second step search in "ba" thus it thinks d is should be in the end and returns -5
+			-5 becoause it return index the item should be (4) and return this: (-(4)-1)
 
 * ktory typ Executor service je schopny spustat vlakna z zadanych rozmediach (ScheduledExecutorService)
 
