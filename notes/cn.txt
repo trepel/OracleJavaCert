@@ -280,7 +280,10 @@ difference is that on windows the renaming operation triggers MODIFY event too
 	casting (String) list.get(0) leads to unchecked cast warning.
 	- all in all, generics is just a syntax added for better type checking, no difference on the bytecode/binary level
 	- List<Number> is not superclass for List<Integer>, even though the Number is supertype for Integer
-		but List<? extends Number> is superclass for List<Integer> 
+		- but List<? extends Number> is superclass for List<Integer>, but you cannot do things like
+		List<? extends Number> list = ...; list.add(new Integer(1)); // compile error; but it has use when you
+		access data and the you can process them in unified way (via Number methods)
+		void doSomethingWithFirstElem(List<? extends Number> list) { Number elem = list.get(0); elem.someMethodFromNumberInterface(); }
 
 
 * na raw type tam nieco tiez bolo
