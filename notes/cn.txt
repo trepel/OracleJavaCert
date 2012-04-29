@@ -137,9 +137,6 @@ class B extends A implements I
 	- properties of the class can't be overriden, thus if I access the class via its ancestor, I can see only ancestor members with ancestor values.
 	If ancestor and child has the same named property, the ancestors one shadows the child one (if access via ancestor). Furthermore, if method defined in ancestor operates with such property, the value from ancestor is used.
 
-* aka vlastnost umoznuje pouzivat generika s 'raw type' colekciami - bytecode manipulation, casting, boxing, unboxing - nemam tucha
-	 - difficult to say, casting or boxing
-
 * bolo tam par chytakov, kedy sa kod neskompiloval, takze si treba poriadne precitat zadanie
 	- thanks for a million-dollar advice
 
@@ -224,6 +221,7 @@ difference is that on windows the renaming operation triggers MODIFY event too
 			permission problem (on unix systems)
 
 * par prikladov na regex (\S, \b), Scanner a String.split() - nic takze
+	- only API doc used
 	- split(regex, limit) : String[]
 		- limit determines the max length of resulting array (max pattern apply count -1)
 			- if 0 -> unlimited, but the begining and ending empty-string items are ignored {"bla", "bla"}
@@ -236,6 +234,7 @@ difference is that on windows the renaming operation triggers MODIFY event too
 		- \d \D -digit; \w \W -word [a-zA-Z_0-9]
 		- \b \B -word boundary, e.g \bdog\B found dog in: my doggie is little
 	- Scanner
+		- see program
 
 * Collections.sort(a, myComparator); int pos = Collections.binarySearch(elem, a) - hladam ale nepouzijem ten comparator - aky je vysledok pre konkretne pole stringov a definovany komparator
 	- sort method sorts the input collection ASC (min-to-max) using natural ordering by default, or given comparator
@@ -245,14 +244,47 @@ difference is that on windows the renaming operation triggers MODIFY event too
 			- if the pivot is bigger than item, fist half is searched, second half otherwise.
 			- e.g.: if array is not ASC orderd "dcba", then binary search using native ordering finds correctly c (c is taken as pivot in first step)
 			but it is unable to find d, cos it in second step search in "ba" thus it thinks d is should be in the end and returns -5
-			-5 becoause it return index the item should be (4) and return this: (-(4)-1)
+			-5 because it return index the item should be (4) and return this: (-(4)-1)
 
 * ktory typ Executor service je schopny spustat vlakna z zadanych rozmediach (ScheduledExecutorService)
+	- Executor is service that managed pool of threads and can assign a task(runnable or callable) to a thread. That
+	means that one thread is not strictly coupled to one task (compared to Thread.start() method, but the Executor
+	handles the runnable and assign a thread from pool for it
+	- ScheduledExecutorService has method for running tasks in certain period of time, repeat after interval, etc.
 
 * file attributes - dos filesystem, set hidden and system file (setAttribute s string parametrom) + este nieco ohladom atributov
+	- related to NIO Files
+	- Files.getAttributes(Path p, DosFileAttributes.class) - DosFilesAttributes is return type too
+		- hidden, system, readOnly, archive - these are DOS file system specific attributes
+	- Files.getAttributes(p, "dos:hidden") - for hidden attribute
+	- Files.getAttributes(p, "dos:*") - for all attributes at once via string (not FileAttribute class)
+	- Files.setAttribute(path, "dos:hidden", true); true is a value
+	
 
 * try-with-resources: tusim treba vediet, ze to musi odchytavat vynimku, alebo ta metoda musi obsahovat throws klauzulu; a treba aj vediet, co je supressed vynimka
+	- try(resources) {...} catch(...) {...} finally {...}
+		- resources are object that implements AutoCloseable - only the close method
+		- can be more that one, divided by semicolon (:)
+		- the resources are closed in OPPOSITE order than they were defined
+		- if both in try block and some closing throw exception, the one from try block directly is thrown to
+		upprer level, the closing exception is supressed. But can be accessed by Throwable.getSupressed mehtod
+			- OTOH, if using good old try-finally, the try-exception is supressed and the finally-exception is thrown up.
+		- if close method throws checked exception (IOException typically), the IOExcepiton has to be in the
+		throws clause of the method or I has to have catch block for that checked excepiton
 
-* erasure (http://docs.oracle.com/javase/tutorial/java/generics/erasure.html)
+* aka vlastnost umoznuje pouzivat generika s 'raw type' colekciami - bytecode manipulation, casting, boxing, unboxing - nemam tucha
+	- type erasure (http://docs.oracle.com/javase/tutorial/java/generics/erasure.html)
+	- when instantiating generic type, the compiler erase all the information related to the type parameters for backward binary compatibility.
+	This type erasure happens in compile time, thus in runtime the information about objects types in e.g generic List
+	is unaccessible: List<String> list = ...; if (list.get(0) instanceOf String) {...} leads to compile error,
+	casting (String) list.get(0) leads to unchecked cast warning.
+	- all in all, generics is just a syntax added for better type checking, no difference on the bytecode/binary level
+	- List<Number> is not superclass for List<Integer>, even though the Number is supertype for Integer
+		but List<? extends Number> is superclass for List<Integer> 
+
 
 * na raw type tam nieco tiez bolo
+	- Raw type is generic type without the parameter information, e.g. List list = new ArrayList();
+
+* http://docs.oracle.com/javase/tutorial/extra/certification/javase-7-programmer2.html
+	- something that is directly on java doc, that is related to Certified Java Programmer II
