@@ -2,11 +2,18 @@ public <T,V> T invoke(ForkJoinTask<V> task)
 	- <T,V> means that some strange T and V types are going to be used in method declaration, T means return type, <V> means that V object is going to be the part of task object
 
 class Enum
-	- enum can't extends enum (enum is meant as well-known set of values, thus no modification is allowed here) [http://stackoverflow.com/questions/1414755/java-extend-enum]
-	- enum can implement interface, cos enum can represent well-know set of complex Object and I want those objects to implement an interface (e.g. have two enum classes with objects implementing the same interface)
-		so I can work with the enum values in the same manner [http://stackoverflow.com/questions/2709593/why-would-an-enum-implement-an-interface]
-	- enum implements comparable, but the compereTo method is declared final [http://stackoverflow.com/questions/519788/why-is-compareto-on-an-enum-final-in-java]
-	- in the example above there is an enum with complex objects (DOG and CAT), there is constructor for them, they both have sound, but each animal has different sound
+	- enum can't extends enum (enum is meant as well-known set of values, thus no modification is allowed here) 
+	[http://stackoverflow.com/questions/1414755/java-extend-enum]
+	- enum can implement interface, cos enum can represent well-know set of complex Object and I want those objects
+		to implement an interface (e.g. have two enum classes with objects implementing the same interface)
+		so I can work with the enum values in the same manner 
+		[http://stackoverflow.com/questions/2709593/why-would-an-enum-implement-an-interface]
+		- there is example how to define different behavior of each enum object/type
+	- enum implements comparable, but the compereTo method is declared final
+		[http://stackoverflow.com/questions/519788/why-is-compareto-on-an-enum-final-in-java]
+		- here is an example how to define common behavior of each object of enum type
+	- in the example above there is an enum with complex objects (DOG and CAT), there is constructor for them,
+		they both have sound, but each animal has different sound
 		- constructor has to be private (or no modifier specified)
 
 Singleton
@@ -35,3 +42,9 @@ java.nio.file.Path - is not platform independent, cannot compare unix and window
 			- ATOMIC_MOVE - exception is thrown if file system doesn't support this, used if same FileWatcher or something that watches the file to behave correctly
 			- Files.move(source, source.resolveSibling("newname")); // rename to newname
 			- Files.move(source, newdir.resolve(source.getFileName()), REPLACE_EXISTING); // move to the newdir, the name of file remains untouched
+
+- constructors are not a class members
+- subclass inherits all public and protected members. Package-private member too, but only if is in the same package
+	as superclass
+- every method in interface is implicitly public final, every variable is public static final
+- because an inner class is associated with an instance, it cannot define any static members itself
