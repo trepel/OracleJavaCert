@@ -48,3 +48,6 @@ java.nio.file.Path - is not platform independent, cannot compare unix and window
 	as superclass
 - every method in interface is implicitly public final, every variable is public static final
 - because an inner class is associated with an instance, it cannot define any static members itself
+- interface can extend more than one superinterface (unlike class, that can extend only one superclass)
+	- interface can not have implements keyword in the declaration, only extends followed by comma separated super interfaces
+
