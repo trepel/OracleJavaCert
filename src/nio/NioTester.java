@@ -1,5 +1,6 @@
 package nio;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
@@ -12,14 +13,16 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.DosFileAttributeView;
 import java.nio.file.attribute.DosFileAttributes;
+import java.util.Map;
 import java.util.logging.SimpleFormatter;
 
 public class NioTester {
     
     public void pathTest() {
         
-        Path p1              = Paths.get("/home/trepel", "OracleJavaCert", "pathTesting", "subdir1", "file1.txt"); //result: /home/trepel/OracleJavaCert/pathTesting/subdir1/file1.txt
+        Path p1              = Paths.get("/home/trepel", "sources/OracleJavaCert", "pathTesting", "subdir1", "file1.txt"); //result: /home/trepel/OracleJavaCert/pathTesting/subdir1/file1.txt
         Path doubleSlashes  = Paths.get("//home//trepel"); // it is ok, the string is normalized
         Path isEqualsDS     = Paths.get("/home/./trepel/OracleJavaCert/pathTesting/../.."); // NOT
         Path p2             = doubleSlashes.resolve("OracleJavaCert"); // /home/trepel/OracleJavaCert
@@ -37,12 +40,31 @@ public class NioTester {
             Path fp = p1.toRealPath();
         } catch (NoSuchFileException x) {
 //            System.err.format("%s: no such" + " file or directory%n", p1);
+            System.out.println("File is not found");
+            System.out.println(Files.isReadable(p1));
+            File f = p1.toAbsolutePath().toFile();
+            System.out.println(f.exists());
         } catch (IOException x) {
             System.err.format("%s%n", x);
         }
         
         Path p1_to_p2 = p1.relativize(p2); // relative path from p1 to p2, the result contains .. very often
         System.out.println(doubleSlashes.equals(isEqualsDS)); // false
+        
+        
+        System.out.println("-------------FileAttributes--------");
+        try {
+            System.out.println(Files.getFileAttributeView(p1, DosFileAttributeView.class).name());
+            Map<String, Object> attrMap = Files.readAttributes(p1, "dos:*");
+            for (String key : attrMap.keySet()) {
+                System.out.println(key + ": " + attrMap.get(key));
+            }
+            DosFileAttributes dfa = Files.readAttributes(p1, DosFileAttributes.class);
+            System.out.println(dfa.fileKey());
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         
         
         // ============================= Files class ========================================
