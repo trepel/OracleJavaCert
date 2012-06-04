@@ -32,7 +32,7 @@ http://docs.oracle.com/javase/tutorial/essential/io/file.html
 
 java.nio.file.Path - is not platform independent, cannot compare unix and windows paths even if they target to the same file
 	- most of the Path methods are just syntactic => the file itself doesn't need to exists at all, the methods operates only with the Path object itself
-	- Path is collection indexed from 0 and the root element has no index => can be iterable: (Path subpath : path) {...}
+	- Path is collection indexed from 0 and the root element has no index => can be iterable: (Path subpath : path) {...} - subpaths are relative, getNameCount is 1, parent and root are null
 	- Files contains bunch of static methods that operates on Path objects
 		- delete - only empty dir can be deleted otherwise DirectoryNotEmptyException is thrown
 		- copy - non-empty dir can be copied, but it is copied without its content

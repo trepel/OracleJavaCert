@@ -10,7 +10,7 @@ public class PublicA {
     public void draw(Integer i){}
     public void draw(Object o){}
 //    public Object draw(Object o) throws Excepiton{} 
-    // can't be, cos overloading only looks at method signature (name + input parameters (type and number))
+    // can't be, cos overloading only looks at method signature (name + input parameters (type and order))
     
     public static void main(String[] args) {
 
@@ -25,6 +25,11 @@ public class PublicA {
         System.out.println(a.name);
         System.out.println(b.name);
         System.out.println(ab.name); // name from A class is used, cos ab is declared as A type
+        System.out.println();
+        
+        a.printName();
+        b.printName();// this prints 'A' despite the fact is is declared and defined as B class
+        ab.printName();
         System.out.println();
 
         
@@ -44,6 +49,10 @@ class A {
     }
 
     String name = "A";
+    
+    void printName() {
+    	System.out.println(name);
+    }
 
     Object m(Object o, Number n) {
         System.out.println("m from A class");
@@ -60,7 +69,7 @@ class A {
 class B extends A {
 
     String name = "B";
-
+    
     // @Override // can't be override annotation here, this is just hiding
     static void hidden() {
         System.out.println("hidden in B");
@@ -75,6 +84,9 @@ class B extends A {
     // protected void m(Object o, Number n) {return;} // false, can't return void
     // protected Number m(Integer o, Number n) {return null;} // false - arguments must be of exactly the same type
     // protected Number m(Object o, Number n) throws Exception {return null;} // false due to throws clause
+    
+//    @Override // the order of argument type doesn't match, thus this is not overriding
+//    protected Integer m(Number nn, Object oo) {return null;} // causes compile error on line 32 - all passed-in args are null, thus it is ambigous call
 
     @Override
     // public Integer mm(Object i) throws Exception {return null;} // false, cannot 'widen' the exception type

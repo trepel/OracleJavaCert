@@ -16,15 +16,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.RecursiveTask;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +36,7 @@ import java.util.regex.Pattern;
 import nio.NioTester;
 import nio.WatcherHandler;
 
+import forkjoin.FindMaximumTask;
 import forkjoin.IncrementArrayItemsTask;
 
 public class CatchmanNotes {
@@ -84,6 +89,8 @@ public class CatchmanNotes {
         while (i.hasNext()) {
             System.out.println(i.next());
             list.add("abhishek"); // executed two times, for vivek and for kumar
+            //if the normal arrayList is used there, the ConcurentModificationException is thrown, because this thread is trying 
+            //both iterate over an arrayList and modifying the arrayList in the same time
         }
         System.out.println("After modification:");
         Iterator i2 = list.iterator();
@@ -99,6 +106,13 @@ public class CatchmanNotes {
             // i.remove(); // throws UnsupportedOperationException
             list.remove("mashik");
         }
+        
+        ArrayList<String> ar = new ArrayList<>();
+        ar.add("one");
+        ar.add("two");
+        for (String item : ar) {
+//			ar.add("three"); // ConcurrentModificationException, you cannot iterate and modify the arrayList at once
+		}
 
     }
 
@@ -109,6 +123,8 @@ public class CatchmanNotes {
         // Class.forName("org.apache.derby.jbdc.Driver30");
 
         // via command line: -Djbdc.drivers=org.apache.derby.jbdc.Driver30:org.mydriver.Driver
+    	
+    	// see package database
 
     }
 
@@ -124,6 +140,9 @@ public class CatchmanNotes {
 
         bundle = ResourceBundle.getBundle("bundles.bundle", supportedLocales[0]);
         System.out.println(bundle.getString("name"));
+        
+//        bundle = ResourceBundle.getBundle("nonexistingpathinbindirectory.bundles.bundle", supportedLocales[0]);
+//        System.out.println(bundle.getString("name")); // MissingResourceException: can't find resource ...
 
         // System.out.println(bundle.getObject("1")); MissingResourceException: can't find resource for bundle, key 1
     }
@@ -141,14 +160,20 @@ public class CatchmanNotes {
         long[] array = new long[maxLenght];
         for (long i = 0; i < maxLenght; i++) {
             array[(int) i] = i;
+            if (i == 3) {
+            	array[(int)i] = 49l;
+            }
         }
 
         RecursiveAction incrementTask = new IncrementArrayItemsTask(array, 0, array.length);
+        //not a good approach, I should ensure that only one instance of ForkJoinPool is created in the whole application
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(incrementTask);
-
+        
         printArray(array);
-
+        
+        RecursiveTask<Long> findMaximum = new FindMaximumTask(array, 0, array.length);
+        System.out.println("And the maximum is: " + pool.invoke(findMaximum));
     }
 
     private void testRunnableAndCallable() {
@@ -167,7 +192,7 @@ public class CatchmanNotes {
         System.out.println(mcCallResult);
         // if calling directly run method of either Runnable or Thread instance,
         // that doesn't ensure paralelism, this thread waits for run thread to finish and after that it prints the call result
-        // If call start() method of Thread, this Thread instance does't wait for t Thread to finish its run() method
+        // If call start() method of Thread t, this Thread instance does't wait for t Thread to finish its run() method (invoked via start() method)
     }
 
     public <T, V> T doNothingButReturn(Callable<V> task, T tInstance) {
@@ -201,7 +226,7 @@ public class CatchmanNotes {
     }
 
     static void appendNewObject(List<?> list) {
-        // list.add(new Object()); // compilation error! I don't understand why
+//         list.add(new Object()); // compilation error! I don't understand why
     }
 
     public void testNumberFormatAPI() {
@@ -309,8 +334,8 @@ public class CatchmanNotes {
         }
         
         sc.close(); // scanner has no rewind-like method
-        sc = new Scanner(input);
         System.out.println("--------------------------------");
+        sc = new Scanner(input);
 //        sc.findInLine("(\\w+)\\s+(\\w+),\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)");//  only up to line separator
         System.out.println(sc.findInLine("(m.*m)"));
         sc.nextLine();
@@ -379,21 +404,6 @@ public class CatchmanNotes {
     class Inner {
     };
     
-    public void tryWithResourcesTest() {
-        
-        File f = new File("./pathTesting/subdir1/file1.txt");
-        try (FileReader fr = new FileReader(f); BufferedReader br = new BufferedReader(fr)) {
-            br.readLine();
-            fr.close(); // duplicate closing doesn't throw any excepiton
-            fr.close();
-        } catch (IllegalArgumentException | IOException e) { //multi-catch block, e is automatically final
-            // this catches IOExcepiton from both try-block and resource-closing
-            e.printStackTrace();
-        } finally {
-            // try-with resources can have finally block, but resource-closing is executed before this block
-        }        
-    }
-    
     // return type is immediately before the method name, thus <E> is before the return type
     private static <E> void fillList(E elem, List<E> list) {
         list.add(elem);
@@ -411,7 +421,38 @@ public class CatchmanNotes {
             System.out.println(elem);
         }
         
+        MyClass<Integer> mci = new MyClass<Integer>("");
+        
+        Set<? extends Number> someSet = new HashSet<Integer>(); // this is set of numbers, but currently it is not known, what type of numbers exactly
+        // the <Integer> can be replaced by Diamond <>, but I don't really see the sense of it
+        // it can be directly Number, but it can be Integer, Double, .... too, but only ONE of them, not all
+//        someSet.add(new Integer(10)); // compile error, it is not known whether someSet is Set of Integers
+        // this is only good for reading and processing values regardless of exact type of number, because I only use method defined in Number interface
+        
+        Set<Integer> integerSet = new HashSet<>();
+        integerSet.add(new Integer(20));
+        Set<Double> doubleSet = new HashSet<>();
+        doubleSet.add(new Double(30));
+        
+        Set<Number> numberSet = new HashSet<>(); // this is set of numbers, all subclass of number instance can be added
+        numberSet.add(new Integer(10));
+        numberSet.add(new Double(100));
+        
+        callSomeNumberMethod(integerSet);
+        callSomeNumberMethod(doubleSet);
+        callSomeNumberMethod(numberSet);
+        
+        // the Set<Number> is not superclass for Set<Integer> because
+        // you can say Integer is a Number but you cannot say that Set for integers is Set for all numbers
+        
     }
+    
+    private void callSomeNumberMethod(Set<? extends Number> set) {
+    	for (Number number : set) {
+			System.out.println(number.byteValue());
+		}
+    }
+    
     /**
      * @param args
      */
@@ -436,9 +477,9 @@ public class CatchmanNotes {
         CatchmanNotes.outputDelimiter("CASTING IN JAVA");
         cn.testCastException();
         
-        CatchmanNotes.outputDelimiter("NIO TESTER - PATH AND FILES AND FILESYSTEMS");
-        NioTester nioT = new NioTester();
-        nioT.pathTest();
+//        CatchmanNotes.outputDelimiter("NIO TESTER - PATH AND FILES AND FILESYSTEMS");
+        //moved directly to NioTester class
+        
         CatchmanNotes.outputDelimiter("SHADOWING OF VARIABLES");
         cn.testShadowing();
 
@@ -454,8 +495,6 @@ public class CatchmanNotes {
         cn.collectionsBinarySearchAndComparatorTest();
         CatchmanNotes.outputDelimiter("SCANNER API");
         cn.scannerTest();
-        CatchmanNotes.outputDelimiter("TRY WITH RESOURCES");
-        cn.tryWithResourcesTest();
         CatchmanNotes.outputDelimiter("GENERICS");
         cn.genericsTest();
 
@@ -572,3 +611,9 @@ class BS extends AS {
 
     static String staticName = "staticBS";
 }
+
+class MyClass<X> {
+	  <T> MyClass(T t) {
+	    System.out.println(t);
+	  }
+	}

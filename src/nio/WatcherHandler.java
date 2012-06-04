@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
@@ -69,6 +70,7 @@ public class WatcherHandler implements Runnable {
                 keys.remove(key); // if key is invalid, corresponding watched directory is inaccesible and no event will ever come, doesn't need to be watched anymore
                 
                 if (keys.isEmpty()) { // if every watched directory becomes inaccessible, do not loop ifinitely to watch events, no event will ever come
+                	// this means that if you delete every registered directory, the program automatically ends
                     break;
                 }
             }
@@ -80,5 +82,17 @@ public class WatcherHandler implements Runnable {
     public void run() {
         this.processEvents();
     }
+    
+    public static void main(String[] args) {
+    	 WatcherHandler wh;
+         try {
+	         wh = new WatcherHandler();
+	         wh.register(Paths.get("/home/trepel/sources/OracleJavaCert/watchTesting"));
+         } catch (IOException e) {
+	         e.printStackTrace();
+	         return;
+         }
+         new Thread(wh).start();
+	}
 
 }
