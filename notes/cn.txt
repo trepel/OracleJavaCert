@@ -14,7 +14,6 @@
 
 
 * ako loadovat driver pri JDBC 3.0 - 2 sposoby
-	- http://www.exampledepot.com/egs/java.sql/LoadDrivers.html (there are two below ways how to do it)	
 	- DriverManager.registerDriver(new org.apache.derby.jbdc.Driver30());
 	- Class.forName("org.apache.derby.jbdc.Driver30");
 	
@@ -28,9 +27,8 @@ setAutoCommit(true);
 insert4;
 
 select * - ktore vsetky inserty uvidim -> only insert3 and insert4 [set a db connection in my app and verify, it there will be more questions about databases]
-
-	- http://www.ibm.com/developerworks/java/library/j-jdbcnew/ (end of the page, there is savepoint explanation) 
-		- in general, savepoint is the mark up to which the transaction is rolled back with savepoint as parameter: con.rollback(savepoint) [without parameter the whole transaciton is rolled back]
+- in general, savepoint is the mark up to which the transaction is rolled back with savepoint as parameter: con.rollback(savepoint) [without parameter the whole transaciton is rolled back]
+    - connection.setAutoCommit(false) -> if true, every statement.execute-Update/Query/() is committed immediately and connection.rollback(...) throws SQLException
 
 
 * ResourceBundle - ako sa loaduje (poradie, ak nie je bundle pre default locale apod) - dost otazok takze nastudovat
@@ -60,9 +58,13 @@ select * - ktore vsetky inserty uvidim -> only insert3 and insert4 [set a db con
 	join method waits for it. So you get two T subresult and you can combine them to the final result that the 'main'
 	compute() method can return.
 
+    - in case I have RecursiveAction (no value is resturn from sub-tasks) I can use invokeAll(RecursiveAction subActionOne, RecursiveAction subActionTwo) in compute() method instead
+        of calling fork() + compute() + join() and combining the subresults
+
 
 * Thread th1;
 th1.sleep(1000) - uspi aktualne vlakno, nie th1. Sleep is static method of Thread class, thus it has no sense to call it on particular instance.
+    - this may throw InterruptedException, so it must be declared or used in try-catch block
 
 * rozdiel medzi Runnable Callable (return value, exception)
 	- Runnable cannot return a value and cannot throw a checked exception. Runnable interface has run() method with void return type and without a throw clause, thus every checked exception has to be caught in the run's body.
@@ -134,6 +136,7 @@ class B extends A implements I
 * overloading + shadowing class memberov (metody overloadujem ale premenne nie, takze pri pristupe cez predka sa pouzije member z predka...)
 	- properties of the class can't be overriden, thus if I access the class via its ancestor, I can see only ancestor members with ancestor values.
 	If ancestor and child has the same named property, the ancestors one shadows the child one (if access via ancestor). Furthermore, if method defined in ancestor operates with such property, the value from ancestor is used.
+    - same holds for static methods, can't be overriden, but can be hidden by subclass
 
 * bolo tam par chytakov, kedy sa kod neskompiloval, takze si treba poriadne precitat zadanie
 	- thanks for a million-dollar advice

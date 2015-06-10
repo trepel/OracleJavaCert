@@ -46,7 +46,7 @@ public class CatchmanNotes {
         System.out.println("=======================================================================");
         System.out.println();
     }
-    
+
     public static void outputDelimiter(String header) {
         System.out.println();
         System.out.println(header + "==============================================================");
@@ -60,7 +60,7 @@ public class CatchmanNotes {
 
         Date date = null;
         try {
-            date = sdf.parse("2011-11-03");
+            date = sdf.parse("2011-11-15");
         } catch (ParseException e) {
             e.printStackTrace();
             return;
@@ -74,9 +74,9 @@ public class CatchmanNotes {
         System.out.println(sdf.format(date)); // Nov
         sdf.applyPattern("MMMM");
         System.out.println(sdf.format(date)); // November
-        
+
         sdf.applyPattern("dddd");
-        System.out.println(sdf.format(date));
+        System.out.println(sdf.format(date)); //0015
 
     }
 
@@ -89,7 +89,7 @@ public class CatchmanNotes {
         while (i.hasNext()) {
             System.out.println(i.next());
             list.add("abhishek"); // executed two times, for vivek and for kumar
-            //if the normal arrayList is used there, the ConcurentModificationException is thrown, because this thread is trying 
+            //if the normal arrayList is used there, the ConcurentModificationException is thrown, because this thread is trying
             //both iterate over an arrayList and modifying the arrayList in the same time
         }
         System.out.println("After modification:");
@@ -106,7 +106,7 @@ public class CatchmanNotes {
             // i.remove(); // throws UnsupportedOperationException
             list.remove("mashik");
         }
-        
+
         ArrayList<String> ar = new ArrayList<>();
         ar.add("one");
         ar.add("two");
@@ -123,7 +123,7 @@ public class CatchmanNotes {
         // Class.forName("org.apache.derby.jbdc.Driver30");
 
         // via command line: -Djbdc.drivers=org.apache.derby.jbdc.Driver30:org.mydriver.Driver
-    	
+
     	// see package database
 
     }
@@ -140,11 +140,11 @@ public class CatchmanNotes {
 
         bundle = ResourceBundle.getBundle("bundles.bundle", supportedLocales[0]);
         System.out.println(bundle.getString("name"));
-        
+
 //        bundle = ResourceBundle.getBundle("nonexistingpathinbindirectory.bundles.bundle", supportedLocales[0]);
 //        System.out.println(bundle.getString("name")); // MissingResourceException: can't find resource ...
 
-        // System.out.println(bundle.getObject("1")); MissingResourceException: can't find resource for bundle, key 1
+        // System.out.println(bundle.getObject("1")); // MissingResourceException: can't find resource for bundle, key 1
     }
 
     public void printArray(long[] array) {
@@ -169,9 +169,9 @@ public class CatchmanNotes {
         //not a good approach, I should ensure that only one instance of ForkJoinPool is created in the whole application
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(incrementTask);
-        
+
         printArray(array);
-        
+
         RecursiveTask<Long> findMaximum = new FindMaximumTask(array, 0, array.length);
         System.out.println("And the maximum is: " + pool.invoke(findMaximum));
     }
@@ -312,27 +312,27 @@ public class CatchmanNotes {
         }
 
     }
-    
+
     public void regexTest() {
         Pattern p = Pattern.compile("[\\s][a-c[p-q[r-r]]][\\s]end");// [a-b[c-d[e-f]]] - so called union, can be recursively nested
         Matcher m = p.matcher("blabla b end blabla r end blabla d end");
-        
+
         while (m.find()) {
             System.out.println(m.group());
         }
     }
-    
+
     public void scannerTest() {
-        String input = " hello  hi,   I    am Thomas.\nHi, I am not Tomas"; 
+        String input = " hello  hi,   I    am Thomas.\nHi, I am not Tomas";
         //first space skipped, more spaces behave like one. If commented below delimiter is used
-        // the numberOfSpaces - 1 spaces get to the result 
+        // the numberOfSpaces - 1 spaces get to the result
         Scanner sc = new Scanner(input);//.useDelimiter("\\s");
         System.out.println(sc.delimiter().pattern());
         System.out.println("--------------------------------");
         while (sc.hasNext()) {
             System.out.println(sc.next()+"~");
         }
-        
+
         sc.close(); // scanner has no rewind-like method
         System.out.println("--------------------------------");
         sc = new Scanner(input);
@@ -345,7 +345,7 @@ public class CatchmanNotes {
         for (int i=1; i<=result.groupCount(); i++)
             System.out.println(result.group(i));
         sc.close();
-        
+
 //        System.out.println("Selec operation (add/disctract):");
 //        sc = new Scanner(System.in);
 //        Scanner sc2 = new Scanner(System.in); // scanner can be combined for input, e.g. one for reading int and one for string
@@ -367,12 +367,12 @@ public class CatchmanNotes {
 //        System.out.println(sentence.replace("{0}", String.valueOf(res)));
 //        sc.close();
 //        sc2.close();
-        
+
     }
-    
+
     public void collectionsBinarySearchAndComparatorTest() {
         Comparator<String> comparator = new Comparator<String>() {
-            
+
             @Override
             public int compare(String o1, String o2) {
                 int i = o1.compareTo(o2);
@@ -381,7 +381,7 @@ public class CatchmanNotes {
                 return Math.abs(i);
             }
         };
-        
+
         List<String> list = new ArrayList<>();
         list.add("a");
         list.add("b");
@@ -403,7 +403,7 @@ public class CatchmanNotes {
 
     class Inner {
     };
-    
+
     // return type is immediately before the method name, thus <E> is before the return type
     private static <E> void fillList(E elem, List<E> list) {
         list.add(elem);
@@ -412,47 +412,47 @@ public class CatchmanNotes {
     private void genericsTest() {
         String stringElem = "string element";
         List<String> list = new ArrayList<String>();
-        
+
         CatchmanNotes.<String>fillList(stringElem, list); //these three ways of invoking generics method are equal
         this.<String>fillList(stringElem, list);
         fillList(stringElem, list);
-        
+
         for (String elem : list) {
             System.out.println(elem);
         }
-        
+
         MyClass<Integer> mci = new MyClass<Integer>("");
-        
+
         Set<? extends Number> someSet = new HashSet<Integer>(); // this is set of numbers, but currently it is not known, what type of numbers exactly
         // the <Integer> can be replaced by Diamond <>, but I don't really see the sense of it
         // it can be directly Number, but it can be Integer, Double, .... too, but only ONE of them, not all
 //        someSet.add(new Integer(10)); // compile error, it is not known whether someSet is Set of Integers
         // this is only good for reading and processing values regardless of exact type of number, because I only use method defined in Number interface
-        
+
         Set<Integer> integerSet = new HashSet<>();
         integerSet.add(new Integer(20));
         Set<Double> doubleSet = new HashSet<>();
         doubleSet.add(new Double(30));
-        
+
         Set<Number> numberSet = new HashSet<>(); // this is set of numbers, all subclass of number instance can be added
         numberSet.add(new Integer(10));
         numberSet.add(new Double(100));
-        
+
         callSomeNumberMethod(integerSet);
         callSomeNumberMethod(doubleSet);
         callSomeNumberMethod(numberSet);
-        
+
         // the Set<Number> is not superclass for Set<Integer> because
         // you can say Integer is a Number but you cannot say that Set for integers is Set for all numbers
-        
+
     }
-    
+
     private void callSomeNumberMethod(Set<? extends Number> set) {
     	for (Number number : set) {
 			System.out.println(number.byteValue());
 		}
     }
-    
+
     /**
      * @param args
      */
@@ -476,10 +476,10 @@ public class CatchmanNotes {
         cn.testRunnableAndCallable();
         CatchmanNotes.outputDelimiter("CASTING IN JAVA");
         cn.testCastException();
-        
+
 //        CatchmanNotes.outputDelimiter("NIO TESTER - PATH AND FILES AND FILESYSTEMS");
         //moved directly to NioTester class
-        
+
         CatchmanNotes.outputDelimiter("SHADOWING OF VARIABLES");
         cn.testShadowing();
 
